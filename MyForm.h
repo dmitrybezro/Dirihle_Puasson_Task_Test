@@ -242,6 +242,10 @@ namespace Graph {
 			return pow(M_PI, 2) * sin(M_PI * _x * _y) * (pow(_y, 2) + pow(_x, 2));
 		}
 
+		double func2(double _x, double _y) {
+			return sin(M_PI * _x * _y);
+		}
+
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 		
 		//  Число разбиений по X и по Y
@@ -446,10 +450,13 @@ namespace Graph {
 			F[i] = -F[i];
 		}
 
+
+		double max = 0.0;
 		double eps_max = 0.0; // текущее значение прироста
 		double eps_cur = 0.0; // для подсчета текущего значения прироста
 		int n = (number_x - 1) * (number_y - 1); //размерность системы линейных уравнений
 		vector<double> V(n, 0); // искомый вектор x
+		vector<double> U(n, 0);
 		int i, j; //индексы
 		double v_old; // старое значение преобразуемой компоненты вектора x
 		double v_new; // новое значение преобразуемой компоненты вектора x
@@ -468,7 +475,7 @@ namespace Graph {
 				if (eps_cur > eps_max) {
 					eps_max = eps_cur;
 				}
-				V[i] = v_new;
+				V[i] = v_new;				
 			}
 			Step++;
 			if ((eps_max < eps) || (Step >= Nmax)) {
@@ -477,7 +484,18 @@ namespace Graph {
 
 
 		}
+		for (int i = 1, m=0; i < number_y; i++) {
+			for (int j = 1; j < number_x; j++, m++) {
+				U[m] = func2(x[j], y[i]);
+			}
+		}
 
+		for (int i = 0; i < V.size(); i++) {
+			double tmp = fabs(V[i] - U[i]);
+			if (tmp > max) {
+				max = tmp;
+			}
+		}
 		for (int i = 1, m = 0; i < number_y; i++) {
 			for (int j = 1; j < number_x; j++, m++) {
 				Main_Grid[i][j] = V[m];
@@ -522,7 +540,8 @@ namespace Graph {
 		System::Windows::Forms::MessageBox::Show(
 			"Тестовая задача решалась методом Зейделя \nна сетке размером (" + Convert::ToString(number_x) + ", " + Convert::ToString(number_y)+ ").\n"
 			+ "\nЧисло выполненных итераций метода = " + Convert::ToString(Step) + "\n\nДостигнутая погрешность = " + Convert::ToString(eps_max)
-			+ "\nпри заданной погрешности метода " + Convert::ToString(eps),
+			+ "\nпри заданной погрешности метода " + Convert::ToString(eps) +
+			"\n Задача решена с точность " + Convert::ToString(max),
 			"Выходные данные",
 			MessageBoxButtons::OK,
 			MessageBoxIcon::Information,
